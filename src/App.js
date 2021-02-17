@@ -1,207 +1,78 @@
-import React,{useState} from "react"
-import ButtonGroup from "@material-ui/core/ButtonGroup";
-import Button from "@material-ui/core/Button";
-import SaveIcon from "@material-ui/icons/Save"
-import DeleteIcon from "@material-ui/icons/Delete"
-import Checkbox from "@material-ui/core/Checkbox"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import TestField from "@material-ui/core/TextField"
-
-import {makeStyles, ThemeProvider, createMuiTheme} from '@material-ui/core/styles'
-import {green, orange} from '@material-ui/core/colors'
-import 'fontsource-roboto';
-
-
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-
-import Paper from "@material-ui/core/Paper"
-import Grid from "@material-ui/core/Grid"
-
-import Toolbar from "@material-ui/core/Toolbar"
+import React,{useState,useContext} from "react"
+import {TriviaContext} from "./stateManager/stateManager"
+import Home from "./Home/Home"
+import Online from "./Online/Online"
+import {useStyles,listProvider,theme} from "./services/exportsFile"
+import { BrowserRouter as Router, Switch, Route ,useHistory, Link} from "react-router-dom";
+import {ThemeProvider} from '@material-ui/core/styles'
+import {Container,AppBar,Toolbar,Typography,Drawer} from '@material-ui/core'
 import Iconbutton from "@material-ui/core/Iconbutton"
-import AppBar from "@material-ui/core/AppBar"
 import MenuIcon from "@material-ui/icons/Menu"
-import InboxIcon from "@material-ui/icons/Inbox"
-
-import HomeIcon from "@material-ui/icons/Home"
-import GameIcon from "@material-ui/icons/Games"
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/Mail';
 import './App.css';
-import { FormHelperText } from "@material-ui/core";
-
-const drawerWidth = 240
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  drawer: {
-    [theme.breakpoints.up('sm')]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  appBar: {
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
-    },
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
-    },
-  },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-}));
 
 
-const iconPicker = (text)=>{
-  if(text === 'בית'){
-    return <HomeIcon/>
-  }
-  if(text === 'אונליין'){
-    return <GameIcon/>
-  }
-  // switch(text) {
-  //   case text === 'בית':
-  //     console.log('switchCase')
-  //     return <HomeIcon/>
-  //     break;
-  //   case text === 'אונליין':
-  //     return <GameIcon/>
-  //     break;
-  //   case text === 'יחיד':
-  //     // code block
-  //     break;
-  //   case text === 'פרופיל':
-  //     // code block
-  //     break;
-  //   case text === 'שלח שאלה':
-  //     // code block
-  //     break;
-  //   default:
-  //     // code block
-  // }
-}
+
 
 function App() {
- let classes = useStyles()
- const [mobileOpen, setMobileOpen] = useState(false);
-const handleDrawerToggle = (e)=>{
-  console.log('here')
-}
-
-  const drawer = (
-    <div>
-      <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        {['בית','אונליין','אימון','יחיד', 'פרופיל','שלח שאלה', 'התנתק']
-        .map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{iconPicker(text)}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-    </div>
-  );
-
-  const theme = createMuiTheme({
-    direction: 'rtl',
-    typography: {
-        h3: {
-            fontSize: 36,
-            marginBottom: 15,
-        },
-        h6:{ fontSize: 22,
-        marginRight: '20px',
-        color: 'black'}
-        ,
-    },
-})
+  let classes = useStyles()
+  const {
+    menuSides,
+    boleanDirection,
+    setBoleanDirection,
+  } = useContext(TriviaContext);
+  
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setBoleanDirection({ ...boleanDirection, [anchor]: open });
+  };
 
   return (
-    <>
-    <ThemeProvider 
-    theme={theme}>
     <div className="App">
+       <ThemeProvider 
+    theme={theme}
+    className={classes.root}>
          <Container maxWidth="sm">
-       <AppBar dir="rtl" position="sticky">
+       <AppBar position="sticky">
          <Toolbar>
            <Iconbutton
+           onClick={toggleDrawer(menuSides[1], true)}
            aria-label="open drawer"
            edge="start">
              <MenuIcon
-             onClick={handleDrawerToggle}/>
+             />
            </Iconbutton>
            <Typography variant="h6">
-             טריוויה - אונליין
+             Trivo
              </Typography>
          </Toolbar>
        </AppBar>
-         </Container>
+       <div>
+      {menuSides.map((anchor) => (
+        <React.Fragment key={anchor}>
+          <Drawer anchor={anchor} open={boleanDirection[anchor]} onClose={toggleDrawer(anchor, false)}>
+            {listProvider(anchor,toggleDrawer,classes)}
+          </Drawer>
+        </React.Fragment>
+      ))}
     </div>
-    </ThemeProvider>
+ 
+</Container>
+</ThemeProvider>
 
-    <nav className={classes.drawer} aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation="css">
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'right'}
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-        <Hidden xsDown implementation="css">
-          <Drawer
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="permanent"
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-      </nav>
-    </>
+
+
+{/* Switch Routers! */}
+        <Switch>
+          <Route path="/online">
+            <Online />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </div>
   );
 }
 
